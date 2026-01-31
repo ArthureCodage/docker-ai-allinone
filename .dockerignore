@@ -1,0 +1,13 @@
+# Fichiers à ignorer lors de la construction Docker
+.git
+.gitignore
+README.md
+NOTES_TECHNIQUES.md
+*.md
+.env
+.vscode
+*.log
+__pycache__
+*.pyc
+.DS_Store
+Thumbs.db

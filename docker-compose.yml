@@ -1,0 +1,54 @@
+version: '3.8'
+
+# Alternative au Dockerfile monolithique
+# Utilisation: docker-compose up -d
+
+services:
+  ai-allinone:
+    build: .
+    image: ai-allinone:latest
+    container_name: ai-container
+    restart: unless-stopped
+
+    # GPU NVIDIA requis
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [ gpu ]
+
+    # Ports exposés
+    ports:
+      - "7860:7860" # SD-Forge-Neo
+      - "8080:8080" # Open WebUI
+      - "11434:11434" # Ollama API
+
+    # Volumes persistants
+    volumes:
+      - ./volumes/models:/workspace/sd-forge-neo/models
+      - ./volumes/outputs:/workspace/sd-forge-neo/outputs
+      - ./volumes/ollama:/root/.ollama
+      - ./volumes/open-webui:/root/.open-webui
+
+    # Variables d'environnement (optionnel)
+    environment:
+      - COMMANDLINE_ARGS=--listen --port 7860 --xformers --api --enable-insecure-extension-access
+      - OLLAMA_HOST=0.0.0.0:11434
+      - WEBUI_AUTH=false # Changer à true pour activer l'authentification
+
+    # Healthcheck
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:7860", "&&", "curl", "-f", "http://localhost:8080" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 120s
+
+# Création automatique des volumes nommés
+volumes:
+  models:
+  outputs:
+  ollama:
+  open-webui:
