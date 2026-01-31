@@ -57,3 +57,10 @@ desktop.ini
 backup-*
 *-backup.tar.gz
 models-backup.tar.gz
+
+# Fichiers de notes et brouillons personnels
+notes.txt
+prompt-gemini.txt
+todo.txt
+*.draft
+*-draft.*
