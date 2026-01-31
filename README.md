@@ -1,348 +1,307 @@
-# 🚀 Docker AI All-in-One
+# 🐳 Docker AI All-in-One
 
-Environnement Docker unique combinant **SD-Forge-Neo** (génération d'images) et **Ollama + Open WebUI** (génération de texte) dans un seul container.
+> Container Docker unique combinant **SD-Forge-Neo** (génération d'images) et **Ollama + Open WebUI** (génération de texte avec LLM) pour un déploiement simplifié sur VPS Ubuntu avec GPU NVIDIA.
 
-## 📦 Contenu
+[![Docker](https://img.shields.io/badge/Docker-2496ED?style=flat&logo=docker&logoColor=white)](https://www.docker.com/)
+[![NVIDIA](https://img.shields.io/badge/NVIDIA-GPU-76B900?style=flat&logo=nvidia&logoColor=white)](https://www.nvidia.com/)
+[![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
-- **SD-Forge-Neo** : Interface de génération d'images Stable Diffusion
-- **Civitai Helper** : Extension pour télécharger des modèles depuis Civitai
-- **Ollama** : Moteur LLM local
-- **Open WebUI** : Interface web moderne pour Ollama
+---
 
-## 🎯 Modèles Pré-Configurés
+## 📋 Table des Matières
 
-### Checkpoints
-- CyberRealistic Pony
-- Nova Reality XL
+- [Aperçu](#-aperçu)
+- [Fonctionnalités](#-fonctionnalités)
+- [Prérequis](#-prérequis)
+- [Installation Rapide](#-installation-rapide)
+- [Documentation](#-documentation)
+- [Modèles Inclus](#-modèles-inclus)
+- [Accès aux Interfaces](#-accès-aux-interfaces)
+- [Gestion](#-gestion)
+- [Dépannage](#-dépannage)
+- [Contribution](#-contribution)
+- [License](#-license)
 
-### LoRAs
-- Perfect Pussy
-- Perfect Eyes XL
-- Multiple Girls Group
-- POV Group Sex
+---
 
-### Modèle LLM
-- Mistral-Small-Instruct (via Ollama)
+## 🎯 Aperçu
 
-## ⚙️ Configuration Minimale Recommandée
+Ce projet fournit un environnement Docker **tout-en-un** pour :
+- **Génération d'images** avec Stable Diffusion (SD-Forge-Neo)
+- **Génération de texte** avec des LLM locaux (Ollama + Open WebUI)
 
-- **RAM** : 16 GB (32 GB recommandé)
-- **VRAM** : 8 GB minimum (12+ GB pour SDXL)
-- **Stockage** : 100 GB minimum (200+ GB recommandé)
-- **GPU** : NVIDIA avec support CUDA (GTX 1080 Ti / RTX 3060+)
-- **OS** : Ubuntu 20.04+ avec drivers NVIDIA
+Tout dans un **seul container Docker**, déployable en **une commande**.
+
+### Technologies Incluses
+
+- **[SD-Forge-Neo](https://github.com/Haoming02/sd-webui-forge-classic/tree/neo)** - Interface Stable Diffusion optimisée
+- **[Civitai Helper](https://github.com/zixaphir/Stable-Diffusion-Webui-Civitai-Helper)** - Extension pour télécharger des modèles
+- **[Ollama](https://ollama.com)** - Moteur LLM local
+- **[Open WebUI](https://github.com/open-webui/open-webui)** - Interface web moderne pour Ollama
+
+---
+
+## ✨ Fonctionnalités
+
+✅ **Installation en une commande**  
+✅ **Container unique** avec tous les services  
+✅ **GPU NVIDIA** optimisé (CUDA 12.1)  
+✅ **Téléchargement automatique** des modèles Civitai  
+✅ **Volumes persistants** pour modèles et outputs  
+✅ **Configuration pré-paramétrée** (Euler sampler, Clip Skip 2, JPEG)  
+✅ **Scripts de gestion** interactifs  
+✅ **Support Brev.dev** pour déploiement cloud  
+
+---
+
+## 💻 Prérequis
+
+### Configuration Minimale
+
+| Composant | Minimum | Recommandé |
+|-----------|---------|------------|
+| **RAM** | 16 GB | 32 GB |
+| **VRAM** | 8 GB | 12+ GB |
+| **Stockage** | 100 GB | 200+ GB |
+| **GPU** | NVIDIA GTX 1080 Ti | RTX 3060+ |
+| **OS** | Ubuntu 20.04+ | Ubuntu 22.04 |
+
+### Logiciels Requis
+
+- Docker (installé automatiquement par le script)
+- NVIDIA Drivers (version récente)
+- NVIDIA Container Toolkit (installé automatiquement)
+
+---
 
 ## 🚀 Installation Rapide
 
-### Option 1 : Installation Automatique (Recommandé)
+### Option 1 : Script Automatique (Recommandé)
 
 ```bash
-# 1. Cloner ou télécharger les fichiers (Dockerfile, install.sh, README.md)
-# 2. Rendre le script exécutable et lancer l'installation
+# Cloner le dépôt
+git clone https://github.com/VOTRE-USERNAME/docker-ai-allinone.git
+cd docker-ai-allinone
+
+# Lancer l'installation
 chmod +x install.sh
 ./install.sh
 ```
 
 **C'est tout !** Le script va :
-- Installer Docker (si nécessaire)
-- Installer NVIDIA Container Toolkit (si nécessaire)
-- Construire l'image Docker
-- Démarrer le container
-- Télécharger tous les modèles automatiquement
+1. Installer Docker et NVIDIA Container Toolkit (si nécessaire)
+2. Construire l'image Docker
+3. Démarrer le container avec tous les services
+4. Télécharger automatiquement les modèles
 
-### Option 2 : Installation Manuelle
+### Option 2 : Docker Compose
 
 ```bash
-# 1. Construire l'image
-docker build -t ai-allinone:latest .
+git clone https://github.com/VOTRE-USERNAME/docker-ai-allinone.git
+cd docker-ai-allinone
 
-# 2. Créer les volumes persistants
-mkdir -p ~/ai-docker/{models,outputs,ollama,open-webui}
-
-# 3. Démarrer le container
-docker run -d \
-  --name ai-container \
-  --gpus all \
-  --restart unless-stopped \
-  -p 7860:7860 \
-  -p 8080:8080 \
-  -p 11434:11434 \
-  -v ~/ai-docker/models:/workspace/sd-forge-neo/models \
-  -v ~/ai-docker/outputs:/workspace/sd-forge-neo/outputs \
-  -v ~/ai-docker/ollama:/root/.ollama \
-  -v ~/ai-docker/open-webui:/root/.open-webui \
-  ai-allinone:latest
+docker-compose up -d --build
 ```
+
+### Option 3 : Déploiement sur Brev.dev
+
+```bash
+# Transférer les fichiers sur Brev
+scp -r * ubuntu@<brev-instance>:~/ai-docker/
+
+# Sur Brev
+cd ~/ai-docker
+chmod +x deploy-brev.sh
+./deploy-brev.sh
+```
+
+Voir **[GUIDE_BREV.md](GUIDE_BREV.md)** pour plus de détails.
+
+---
+
+## 📚 Documentation
+
+| Document | Description |
+|----------|-------------|
+| **[README.md](README.md)** | Documentation complète et détaillée |
+| **[QUICKSTART.md](QUICKSTART.md)** | Guide de démarrage rapide |
+| **[GUIDE_BREV.md](GUIDE_BREV.md)** | Déploiement sur Brev.dev |
+| **[NOTES_TECHNIQUES.md](NOTES_TECHNIQUES.md)** | Configurations avancées |
+| **[FICHIERS.md](FICHIERS.md)** | Index de tous les fichiers |
+
+---
+
+## 🎨 Modèles Inclus
+
+### Checkpoints (Stable Diffusion)
+- **CyberRealistic Pony** - Génération réaliste et stylisée
+- **Nova Reality XL** - Images photoréalistes
+
+### LoRAs
+- **Perfect Pussy** - Amélioration des détails anatomiques
+- **Perfect Eyes XL** - Amélioration des yeux
+- **Multiple Girls Group** - Scènes avec plusieurs personnages
+- **POV Group Sex** - Perspectives POV
+
+### Modèles LLM
+- **Mistral** (via Ollama) - Modèle de langage polyvalent
+
+> **Note :** Les modèles sont téléchargés automatiquement au premier démarrage (~50-70 GB). Vous pouvez ajouter vos propres modèles via l'interface Civitai Helper.
+
+---
 
 ## 🌐 Accès aux Interfaces
 
-Une fois le container démarré (attendez 5-10 min pour le premier démarrage) :
+Une fois le container démarré :
 
 | Service | URL | Description |
 |---------|-----|-------------|
-| **SD-Forge-Neo** | `http://localhost:7860` | Interface de génération d'images |
-| **Open WebUI** | `http://localhost:8080` | Interface de chat avec Ollama |
-| **Ollama API** | `http://localhost:11434` | API Ollama (usage interne) |
+| **SD-Forge-Neo** | http://localhost:7860 | Génération d'images |
+| **Open WebUI** | http://localhost:8080 | Chat avec Ollama |
+| **Ollama API** | http://localhost:11434 | API Ollama (interne) |
 
-## 📊 Vérifier le Statut
+### Accès Distant Sécurisé
+
+Pour un accès depuis l'extérieur, voir la section **[Accès Sécurisé](README.md#-accès-sécurisé-depuis-lextérieur)** dans le README principal.
+
+---
+
+## 🛠️ Gestion
+
+### Script de Gestion Interactif
 
 ```bash
-# Voir les logs en temps réel
-docker logs -f ai-container
-
-# Vérifier que tous les services sont actifs
-docker exec ai-container supervisorctl status
-
-# Vérifier l'utilisation du GPU
-nvidia-smi
+chmod +x manage.sh
+./manage.sh
 ```
 
-## 🔧 Gestion du Container
+Menu avec 16 options :
+- ✅ Voir le statut du container
+- ▶️ Démarrer/Arrêter/Redémarrer
+- 📋 Logs en temps réel
+- 💻 Monitoring CPU/GPU
+- 📦 Gérer les modèles Ollama
+- 💾 Backup automatique
+- Et plus...
+
+### Commandes Essentielles
 
 ```bash
-# Arrêter le container
-docker stop ai-container
-
-# Démarrer le container
-docker start ai-container
+# Voir les logs
+docker logs -f ai-container
 
 # Redémarrer le container
 docker restart ai-container
 
-# Accéder au shell du container
-docker exec -it ai-container bash
-```
-
-## 📥 Ajouter de Nouveaux Modèles
-
-### Modèles Civitai (Images)
-
-**Option 1 : Via l'interface SD-Forge-Neo**
-1. Ouvrir `http://localhost:7860`
-2. Aller dans l'onglet **Civitai Helper**
-3. Coller l'URL du modèle Civitai
-4. Cliquer sur "Download"
-
-**Option 2 : Manuellement**
-```bash
-# Les modèles sont dans ~/ai-docker/models/
-# Copier vos fichiers .safetensors dans les sous-dossiers appropriés :
-~/ai-docker/models/Stable-diffusion/  # Pour les checkpoints
-~/ai-docker/models/Lora/              # Pour les LoRAs
-~/ai-docker/models/VAE/               # Pour les VAE
-```
-
-### Modèles Ollama (Texte)
-
-**Option 1 : Via Open WebUI**
-1. Ouvrir `http://localhost:8080`
-2. Menu → Admin Panel → Settings → Models
-3. Télécharger depuis Ollama Library ou Hugging Face
-
-**Option 2 : Via CLI**
-```bash
-# Liste des modèles disponibles
-docker exec ai-container ollama list
-
-# Télécharger un modèle
-docker exec ai-container ollama pull llama3.3
-docker exec ai-container ollama pull codellama
-docker exec ai-container ollama pull mistral
-
-# Supprimer un modèle
-docker exec ai-container ollama rm <model-name>
-```
-
-## 🔄 Mise à Jour Sans Perte de Données
-
-Les modèles et outputs sont stockés dans des volumes Docker persistants. Pour mettre à jour :
-
-```bash
-# 1. Arrêter et supprimer le container (les données restent dans les volumes)
-docker stop ai-container
-docker rm ai-container
-
-# 2. Reconstruire l'image avec les dernières mises à jour
-docker build -t ai-allinone:latest .
-
-# 3. Redémarrer le container (même commande qu'à l'installation)
-docker run -d \
-  --name ai-container \
-  --gpus all \
-  --restart unless-stopped \
-  -p 7860:7860 \
-  -p 8080:8080 \
-  -p 11434:11434 \
-  -v ~/ai-docker/models:/workspace/sd-forge-neo/models \
-  -v ~/ai-docker/outputs:/workspace/sd-forge-neo/outputs \
-  -v ~/ai-docker/ollama:/root/.ollama \
-  -v ~/ai-docker/open-webui:/root/.open-webui \
-  ai-allinone:latest
-```
-
-**Vos modèles et images générées seront préservés !**
-
-## 🔒 Accès Sécurisé depuis l'Extérieur
-
-> ⚠️ **IMPORTANT** : Ne jamais exposer directement les ports sans authentification !
-
-### Option 1 : Reverse Proxy avec Nginx + SSL
-
-```bash
-# Installation de Nginx et Certbot
-sudo apt install nginx certbot python3-certbot-nginx
-
-# Configuration Nginx (exemple pour SD-Forge-Neo)
-sudo nano /etc/nginx/sites-available/ai-forge
-
-# Contenu :
-server {
-    listen 80;
-    server_name votre-domaine.com;
-
-    location / {
-        proxy_pass http://localhost:7860;
-        proxy_set_header Host $host;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
-    }
-}
-
-# Activer le site et obtenir le certificat SSL
-sudo ln -s /etc/nginx/sites-available/ai-forge /etc/nginx/sites-enabled/
-sudo certbot --nginx -d votre-domaine.com
-sudo systemctl restart nginx
-```
-
-### Option 2 : Cloudflare Tunnel (Gratuit, Recommandé)
-
-```bash
-# Installation de cloudflared
-wget https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-linux-amd64.deb
-sudo dpkg -i cloudflared-linux-amd64.deb
-
-# Authentification
-cloudflared tunnel login
-
-# Création du tunnel
-cloudflared tunnel create ai-tunnel
-
-# Configuration (créer ~/.cloudflared/config.yml)
-tunnel: <tunnel-id>
-credentials-file: /home/<user>/.cloudflared/<tunnel-id>.json
-
-ingress:
-  - hostname: forge.votre-domaine.com
-    service: http://localhost:7860
-  - hostname: chat.votre-domaine.com
-    service: http://localhost:8080
-  - service: http_status:404
-
-# Démarrer le tunnel
-cloudflared tunnel run ai-tunnel
-```
-
-### Option 3 : VPN (Accès Privé)
-
-Installer WireGuard ou OpenVPN pour un accès privé sécurisé.
-
-## 🛠️ Configuration SD-Forge-Neo
-
-La configuration par défaut inclut :
-
-- **Format de sauvegarde** : JPEG (qualité 95%)
-- **Clip Skip** : 2
-- **Sampler par défaut** : Euler
-- **Clé API Civitai** : Pré-configurée
-- **API activée** : Accès via `http://localhost:7860/docs`
-
-Pour modifier la configuration :
-```bash
-# Éditer le fichier de config
-docker exec -it ai-container nano /workspace/sd-forge-neo/config.json
-
-# Redémarrer SD-Forge-Neo
-docker exec ai-container supervisorctl restart sd-forge-neo
-```
-
-## 📁 Structure des Volumes
-
-```
-~/ai-docker/
-├── models/              # Modèles SD-Forge-Neo (checkpoints, LoRAs, VAE)
-├── outputs/             # Images générées
-├── ollama/              # Modèles Ollama
-└── open-webui/          # Données Open WebUI (conversations, paramètres)
-```
-
-## ❓ Dépannage
-
-### Le container ne démarre pas
-```bash
-# Vérifier les logs
-docker logs ai-container
-
-# Vérifier l'état des services
+# État des services internes
 docker exec ai-container supervisorctl status
+
+# Télécharger un modèle Ollama
+docker exec ai-container ollama pull llama3.3
 ```
-
-### SD-Forge-Neo ne charge pas
-```bash
-# Redémarrer uniquement SD-Forge
-docker exec ai-container supervisorctl restart sd-forge-neo
-
-# Vérifier les logs
-docker exec ai-container tail -f /var/log/sd-forge.out.log
-```
-
-### Ollama ne répond pas
-```bash
-# Redémarrer Ollama
-docker exec ai-container supervisorctl restart ollama
-
-# Vérifier les modèles installés
-docker exec ai-container ollama list
-```
-
-### Manque d'espace disque
-```bash
-# Vérifier l'espace utilisé
-du -sh ~/ai-docker/*
-
-# Nettoyer les images Docker inutilisées
-docker system prune -a
-```
-
-### Erreur GPU / CUDA
-```bash
-# Vérifier que le GPU est accessible
-nvidia-smi
-
-# Vérifier que Docker peut utiliser le GPU
-docker run --rm --gpus all nvidia/cuda:12.1.0-base-ubuntu22.04 nvidia-smi
-```
-
-## 📝 Notes Importantes
-
-- **Premier démarrage** : Le téléchargement des modèles peut prendre 10-20 minutes
-- **Stockage** : Prévoir ~50-70 GB pour les modèles pré-configurés
-- **Performances** : Les générations d'images SDXL nécessitent au minimum 8 GB de VRAM
-
-## 📚 Ressources
-
-- [SD-Forge-Neo GitHub](https://github.com/Haoming02/sd-webui-forge-classic/tree/neo)
-- [Civitai Helper](https://github.com/zixaphir/Stable-Diffusion-Webui-Civitai-Helper)
-- [Ollama Documentation](https://ollama.com)
-- [Open WebUI GitHub](https://github.com/open-webui/open-webui)
-
-## 🤝 Support
-
-Pour toute question ou problème :
-1. Vérifier les logs : `docker logs -f ai-container`
-2. Consulter la section Dépannage ci-dessus
-3. Vérifier les issues GitHub des projets respectifs
 
 ---
 
-**Bon codage et bonne création ! 🎨🤖**
+## 🐛 Dépannage
+
+### Container ne démarre pas
+```bash
+docker logs ai-container
+```
+
+### GPU non détecté
+```bash
+nvidia-smi
+docker run --rm --gpus all nvidia/cuda:12.1.0-base-ubuntu22.04 nvidia-smi
+```
+
+### Service ne répond pas
+```bash
+docker exec ai-container supervisorctl status
+docker exec ai-container supervisorctl restart <service-name>
+```
+
+### Tests de Validation
+```bash
+chmod +x test.sh
+./test.sh
+```
+
+Pour plus de dépannage, consultez **[README.md - Section Dépannage](README.md#-dépannage)**.
+
+---
+
+## 📦 Structure du Projet
+
+```
+docker-ai-allinone/
+├── Dockerfile                    # Image Docker principale
+├── docker-compose.yml            # Configuration Docker Compose
+├── .dockerignore                 # Optimisation du build
+├── .gitignore                    # Fichiers Git exclus
+│
+├── install.sh                    # Installation automatique
+├── manage.sh                     # Gestion interactive
+├── test.sh                       # Tests de validation
+├── deploy-brev.sh                # Déploiement Brev.dev
+├── deploy-github.sh              # Déploiement GitHub
+│
+├── README.md                     # Documentation principale
+├── QUICKSTART.md                 # Guide rapide
+├── GUIDE_BREV.md                 # Guide Brev.dev
+├── NOTES_TECHNIQUES.md           # Configurations avancées
+└── FICHIERS.md                   # Index des fichiers
+```
+
+---
+
+## 🤝 Contribution
+
+Les contributions sont les bienvenues ! Pour contribuer :
+
+1. **Fork** le projet
+2. Créez une branche pour votre fonctionnalité (`git checkout -b feature/AmazingFeature`)
+3. Committez vos changements (`git commit -m 'Add some AmazingFeature'`)
+4. Pushez vers la branche (`git push origin feature/AmazingFeature`)
+5. Ouvrez une **Pull Request**
+
+### Idées de Contribution
+
+- Support pour d'autres modèles Stable Diffusion
+- Intégration de nouveaux LLM
+- Amélioration des performances
+- Scripts de déploiement pour d'autres plateformes cloud
+- Documentation dans d'autres langues
+
+---
+
+## 📄 License
+
+Ce projet est sous licence **MIT**. Voir le fichier [LICENSE](LICENSE) pour plus de détails.
+
+---
+
+## 🙏 Remerciements
+
+- [SD-Forge-Neo](https://github.com/Haoming02/sd-webui-forge-classic) - Interface Stable Diffusion
+- [Civitai](https://civitai.com) - Hébergement des modèles
+- [Ollama](https://ollama.com) - Moteur LLM local
+- [Open WebUI](https://github.com/open-webui/open-webui) - Interface web moderne
+
+---
+
+## 📞 Support
+
+- **Issues** : [GitHub Issues](https://github.com/VOTRE-USERNAME/docker-ai-allinone/issues)
+- **Discussions** : [GitHub Discussions](https://github.com/VOTRE-USERNAME/docker-ai-allinone/discussions)
+- **Documentation** : Voir les fichiers `.md` dans le repo
+
+---
+
+## ⭐ Star History
+
+Si ce projet vous a aidé, n'hésitez pas à lui donner une ⭐ sur GitHub !
+
+---
+
+**Créé avec ❤️ pour la communauté AI/ML**
